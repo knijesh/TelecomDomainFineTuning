@@ -12,6 +12,9 @@ fake = Faker()
 # ========================
 # 1. ENHANCED DATA CONFIGURATION
 # ========================
+
+# Fake telecom company name
+COMPANY_NAME = "TeleMax Solutions"
 PLANS = [
     {"name": "Basic 5G", "price": 40, "data": "5GB", "roaming": "None", "speed": "50Mbps", "type": "individual", "data_gb": 5},
     {"name": "Streamer Plus", "price": 60, "data": "15GB", "roaming": "$5/day", "speed": "100Mbps", "type": "individual", "data_gb": 15},
@@ -125,17 +128,18 @@ def calculate_savings(new_plan: Dict, current_plan: Dict) -> Dict[str, float]:
         "percentage": (monthly_savings / current_plan['price']) * 100 if current_plan['price'] > 0 else 0
     }
 
-def generate_single_turn() -> Dict[str, Any]:
+def generate_single_turn() -> Dict[str, str]:
     """Generate a single-turn plan recommendation dialogue."""
     current_plan = random.choice(PLANS)
     profile = generate_usage_profile()
+    company_name = COMPANY_NAME
     
     # More varied question patterns
     question_templates = [
-        f"I'm currently on {current_plan['name']} (${current_plan['price']}/month) but using {profile['data_usage']}GB monthly for {random.choice(['work', 'streaming', 'gaming', 'social media'])}. What's a better option?",
-        f"My {current_plan['name']} plan isn't working for my {profile['data_usage']}GB usage. Need something more {random.choice(['affordable', 'flexible', 'comprehensive'])}.",
-        f"Looking to switch from {current_plan['name']}. I need {profile['data_usage']}GB and better {random.choice(['coverage', 'speeds', 'value'])}.",
-        f"Can you recommend an alternative to {current_plan['name']}? My usage is around {profile['data_usage']}GB and I want to {random.choice(['save money', 'get more data', 'improve service'])}."
+        f"I'm currently on {current_plan['name']} (${current_plan['price']}/month) with {company_name} but using {profile['data_usage']}GB monthly for {random.choice(['work', 'streaming', 'gaming', 'social media'])}. What's a better option?",
+        f"My {current_plan['name']} plan from {company_name} isn't working for my {profile['data_usage']}GB usage. Need something more {random.choice(['affordable', 'flexible', 'comprehensive'])}.",
+        f"Looking to switch from {current_plan['name']} at {company_name}. I need {profile['data_usage']}GB and better {random.choice(['coverage', 'speeds', 'value'])}.",
+        f"Can you recommend an alternative to {current_plan['name']} from {company_name}? My usage is around {profile['data_usage']}GB and I want to {random.choice(['save money', 'get more data', 'improve service'])}."
     ]
     
     question = random.choice(question_templates)
@@ -143,42 +147,32 @@ def generate_single_turn() -> Dict[str, Any]:
     savings = calculate_savings(recommended_plan, current_plan)
     
     # Enhanced answer with more details
-    coverage_status = "✅ Perfect fit" if recommended_plan['data_gb'] >= profile['data_usage'] else "⚠️ May need monitoring"
+    coverage_status = "Perfect fit" if recommended_plan['data_gb'] >= profile['data_usage'] else "May need monitoring"
     if recommended_plan['data_gb'] == float('inf'):
-        coverage_status = "✅ Unlimited - no worries!"
+        coverage_status = "Unlimited - no worries!"
     
-    answer = f"""Based on your {profile['data_usage']}GB usage pattern:
+    answer = f"""Based on your {profile['data_usage']}GB usage pattern, I recommend the **{recommended_plan['name']} (${recommended_plan['price']}/month)** plan.
 
-**Recommended: {recommended_plan['name']} (${recommended_plan['price']}/month)**
+Key features:
 • Data: {recommended_plan['data']} - {coverage_status}
 • Speed: {recommended_plan['speed']}
 • Roaming: {recommended_plan['roaming']}
-• Monthly savings: ${abs(savings['monthly']):.0f} ({'save' if savings['monthly'] > 0 else 'additional cost'})
+• Monthly difference: ${abs(savings['monthly']):.0f} ({'save' if savings['monthly'] > 0 else 'additional cost'})
 • Annual impact: ${abs(savings['annual']):.0f}
 
-This plan suits {profile['type']} users and offers {random.choice(['better value', 'improved coverage', 'enhanced features'])} for your needs."""
+This plan suits {profile['type']} users and offers better value for your needs."""
     
     return {
-        "type": "single_turn",
-        "dialog": [
-            {"speaker": "user", "text": question}, 
-            {"speaker": "agent", "text": answer}
-        ],
-        "metadata": {
-            "profile_type": profile['type'],
-            "usage_gb": profile['data_usage'],
-            "current_plan": current_plan['name'],
-            "recommended_plan": recommended_plan['name'],
-            "savings": savings,
-            "timestamp": datetime.now().isoformat()
-        }
+        "input": question,
+        "output": answer
     }
 
-def generate_multi_turn() -> Dict[str, Any]:
-    """Generate a multi-turn conversation with realistic follow-up questions."""
+def generate_multi_turn() -> List[Dict[str, str]]:
+    """Generate a multi-turn conversation as separate input/output pairs."""
     turns = []
     current_plan = random.choice(PLANS)
     profile = generate_usage_profile()
+    company_name = COMPANY_NAME
     
     # Determine conversation context
     context = random.choice(["family", "business", "individual_upgrade"])
@@ -186,124 +180,88 @@ def generate_multi_turn() -> Dict[str, Any]:
     # Initial question based on context
     if context == "family":
         user_context = random.choice(FAMILY_CONTEXTS)
-        initial_question = f"I need a family plan for our {user_context}. Currently paying ${current_plan['price']} for {current_plan['name']}. What family options do you have?"
+        initial_question = f"I need a family plan for our {user_context}. Currently paying ${current_plan['price']} for {current_plan['name']} with {company_name}. What family options do you have?"
         recommended_plan = random.choice([p for p in PLANS if p['type'] == 'family'])
     elif context == "business":
         business_need = random.choice(BUSINESS_NEEDS)
-        initial_question = f"Our business needs a plan for {business_need}. We're on {current_plan['name']} but need something more robust."
+        initial_question = f"Our business needs a plan for {business_need}. We're on {current_plan['name']} with {company_name} but need something more robust."
         recommended_plan = random.choice([p for p in PLANS if p['type'] in ['business', 'individual']])
     else:
-        initial_question = f"I want to upgrade from {current_plan['name']}. Looking for better {random.choice(['data allowance', 'international options', 'speed', 'value'])}."
+        initial_question = f"I want to upgrade from {current_plan['name']} with {company_name}. Looking for better {random.choice(['data allowance', 'international options', 'speed', 'value'])}."
         recommended_plan = find_best_plan(profile['data_usage'] * 2)  # Assume they want more
     
-    turns.append({"speaker": "user", "text": initial_question})
+    # First turn
+    agent_response = f"Great choice! I recommend our **{recommended_plan['name']} (${recommended_plan['price']}/month)** which includes {recommended_plan['data']} data and {recommended_plan['speed']} speeds. {random.choice(['Would you like details about additional features?', 'Shall I explain the benefits?', 'Any specific requirements I should know about?'])}"
     
-    # Agent's initial response
     turns.append({
-        "speaker": "agent",
-        "text": f"Great choice! I recommend **{recommended_plan['name']} (${recommended_plan['price']}/month)** which includes {recommended_plan['data']} data and {recommended_plan['speed']} speeds. {random.choice(['Would you like details about additional features?', 'Shall I explain the benefits?', 'Any specific requirements I should know about?'])}"
+        "input": initial_question,
+        "output": agent_response
     })
     
-    # User follow-up questions (1-3 follow-ups)
+    # Follow-up questions (1-2 additional turns)
     follow_up_options = [
-        "What's the contract length and cancellation policy?",
-        "How much for adding extra lines?",
-        "Does this include mobile hotspot data?",
-        "What about international roaming rates?",
-        "Are there any setup fees or hidden costs?",
-        "Can I keep my current phone number?",
-        "What's your network coverage like in my area?",
-        "Do you offer any discounts for autopay or military?"
+        ("What's the contract length and cancellation policy?", "No annual contract required! You can switch anytime. We do offer a 10% discount if you choose a 12-month commitment."),
+        ("How much for adding extra lines?", f"Additional lines are ${random.randint(15, 30)} each with the same features. Family plans get better per-line pricing."),
+        ("Does this include mobile hotspot data?", f"Yes! Includes {random.choice(['5GB', '10GB', 'unlimited'])} mobile hotspot at full speed, then unlimited at reduced speed."),
+        ("What about international roaming rates?", f"International roaming is {random.choice(['$5/day', '$10/day', 'included in select countries'])} with {random.choice(['1GB', '2GB', 'unlimited'])} daily allowance."),
+        ("Are there any setup fees or hidden costs?", f"${random.choice([25, 35, 0])} activation fee {'waived this month' if random.choice([True, False]) else 'per line'}. No hidden charges!")
     ]
     
-    num_followups = random.randint(1, 3)
+    num_followups = random.randint(1, 2)
     selected_followups = random.sample(follow_up_options, num_followups)
     
-    for i, followup in enumerate(selected_followups):
-        turns.append({"speaker": "user", "text": followup})
-        
-        # Generate contextual responses
-        if "contract" in followup.lower():
-            response = f"No annual contract required! You can switch anytime. We do offer a 10% discount if you choose a 12-month commitment."
-        elif "extra lines" in followup.lower():
-            response = f"Additional lines are ${random.randint(15, 30)} each with the same features. Family plans get better per-line pricing."
-        elif "hotspot" in followup.lower():
-            response = f"Yes! Includes {random.choice(['5GB', '10GB', 'unlimited'])} mobile hotspot at full speed, then unlimited at reduced speed."
-        elif "international" in followup.lower():
-            response = f"International roaming is {random.choice(['$5/day', '$10/day', 'included in select countries'])} with {random.choice(['1GB', '2GB', 'unlimited'])} daily allowance."
-        elif "fees" in followup.lower():
-            response = f"${random.choice([25, 35, 0])} activation fee {'waived this month' if random.choice([True, False]) else 'per line'}. No hidden charges!"
-        else:
-            response = random.choice([
-                "Absolutely! That's included at no extra cost.",
-                "Yes, we can arrange that for you during setup.",
-                "Great question - let me check that for your area.",
-                "We offer several options for that. Let me explain..."
-            ])
-        
-        turns.append({"speaker": "agent", "text": response})
+    for followup_question, followup_answer in selected_followups:
+        turns.append({
+            "input": followup_question,
+            "output": followup_answer
+        })
     
-    return {
-        "type": "multi_turn",
-        "dialog": turns,
-        "metadata": {
-            "context": context,
-            "interaction_length": len(turns),
-            "followup_topics": selected_followups,
-            "recommended_plan": recommended_plan['name'],
-            "timestamp": datetime.now().isoformat()
-        }
-    }
+    return turns
 
-def generate_complaint() -> Dict[str, Any]:
-    """Generate complaint handling scenarios with categorized responses."""
+def generate_complaint() -> Dict[str, str]:
+    """Generate complaint handling scenarios."""
     category = random.choice(list(COMPLAINT_CATEGORIES.keys()))
     complaint = random.choice(COMPLAINT_CATEGORIES[category])
+    company_name = random.choice(TELECOM_COMPANIES)
+    
+    # Add company context to complaint
+    complaint_with_company = f"{complaint.replace('your', f'{company_name}s').replace('Your', f'{company_name}s')}"
     
     # Category-specific resolutions
     if category == "network":
         resolution = random.choice([
-            "I apologize for the coverage issues. I'm scheduling a network technician to check your area within 48 hours and will provide a service credit for the inconvenience.",
-            "Let me escalate this to our network engineering team immediately. We'll also add a temporary signal booster to your account at no charge.",
-            "I understand your frustration with the service quality. I'm applying a 25% credit to your next two bills while we resolve this network issue."
+            f"I apologize for the coverage issues with {company_name}. I'm scheduling a network technician to check your area within 48 hours and will provide a service credit for the inconvenience.",
+            f"Let me escalate this to our {company_name} network engineering team immediately. We'll also add a temporary signal booster to your account at no charge.",
+            f"I understand your frustration with the {company_name} service quality. I'm applying a 25% credit to your next two bills while we resolve this network issue."
         ])
     elif category == "billing":
         resolution = random.choice([
-            "I sincerely apologize for the billing confusion. I've reviewed your account and I'm reversing the incorrect charges plus adding a $20 service credit.",
-            "You're absolutely right - this charge shouldn't be there. I'm processing a full refund and updating your account to prevent future billing errors.",
-            "Let me connect you with our billing specialist who can explain these charges in detail and make any necessary corrections immediately."
+            f"I sincerely apologize for the billing confusion with your {company_name} account. I've reviewed your account and I'm reversing the incorrect charges plus adding a $20 service credit.",
+            f"You're absolutely right - this charge shouldn't be on your {company_name} bill. I'm processing a full refund and updating your account to prevent future billing errors.",
+            f"Let me connect you with our {company_name} billing specialist who can explain these charges in detail and make any necessary corrections immediately."
         ])
     elif category == "customer_service":
         resolution = random.choice([
-            "I'm truly sorry for the poor service experience. I'm personally handling your case now and will ensure you have my direct number for any future needs.",
-            "This is unacceptable service, and I apologize. I'm escalating this to my supervisor and we'll have a senior technician contact you within 4 hours.",
-            "I understand your frustration completely. Let me arrange priority service for you and provide a significant account credit for this experience."
+            f"I'm truly sorry for the poor service experience with {company_name}. I'm personally handling your case now and will ensure you have my direct number for any future needs.",
+            f"This is unacceptable service from {company_name}, and I apologize. I'm escalating this to my supervisor and we'll have a senior technician contact you within 4 hours.",
+            f"I understand your frustration with {company_name} completely. Let me arrange priority service for you and provide a significant account credit for this experience."
         ])
     else:  # technical
         resolution = random.choice([
-            "Let me troubleshoot this technical issue right now. I'm also sending updated network settings to your device and scheduling a callback to ensure it's resolved.",
-            "I apologize for the technical problems. Our technical support team will call you within the hour, and I'm adding premium support to your account at no charge.",
-            "This sounds like a network configuration issue. I'm pushing new settings to your device now and will monitor your connection for the next 24 hours."
+            f"Let me troubleshoot this {company_name} technical issue right now. I'm also sending updated network settings to your device and scheduling a callback to ensure it's resolved.",
+            f"I apologize for the technical problems with your {company_name} service. Our technical support team will call you within the hour, and I'm adding premium support to your account at no charge.",
+            f"This sounds like a {company_name} network configuration issue. I'm pushing new settings to your device now and will monitor your connection for the next 24 hours."
         ])
     
     return {
-        "type": "complaint",
-        "dialog": [
-            {"speaker": "user", "text": complaint},
-            {"speaker": "agent", "text": resolution}
-        ],
-        "metadata": {
-            "complaint_category": category,
-            "resolution_type": "credit" if "credit" in resolution.lower() else "technical" if "technical" in resolution.lower() else "escalation",
-            "priority_level": random.choice(["high", "medium", "low"]),
-            "timestamp": datetime.now().isoformat()
-        }
+        "input": complaint_with_company,
+        "output": resolution
     }
 
 # ========================
 # 3. ENHANCED DATASET GENERATION
 # ========================
-def generate_dataset(num_samples: int = 1000, distribution: Dict[str, float] = None) -> List[Dict]:
+def generate_dataset(num_samples: int = 1000, distribution: Dict[str, float] = None) -> List[Dict[str, str]]:
     """Generate dataset with configurable distribution and validation."""
     if distribution is None:
         distribution = {"single_turn": 0.5, "multi_turn": 0.35, "complaint": 0.15}
@@ -321,24 +279,37 @@ def generate_dataset(num_samples: int = 1000, distribution: Dict[str, float] = N
             if dialog_type == "single_turn":
                 dataset.append(generate_single_turn())
             elif dialog_type == "multi_turn":
-                dataset.append(generate_multi_turn())
+                # Multi-turn returns multiple input/output pairs
+                multi_turn_data = generate_multi_turn()
+                dataset.extend(multi_turn_data)
             elif dialog_type == "complaint":
                 dataset.append(generate_complaint())
     
     # Fill remaining samples randomly if any
-    remaining = num_samples - len(dataset)
-    for _ in range(remaining):
-        choice = random.choices(
-            list(distribution.keys()),
-            weights=list(distribution.values())
-        )[0]
-        
-        if choice == "single_turn":
-            dataset.append(generate_single_turn())
-        elif choice == "multi_turn":
-            dataset.append(generate_multi_turn())
-        else:
-            dataset.append(generate_complaint())
+    current_count = len(dataset)
+    remaining = num_samples - current_count
+    
+    if remaining > 0:
+        for _ in range(remaining):
+            choice = random.choices(
+                list(distribution.keys()),
+                weights=list(distribution.values())
+            )[0]
+            
+            if choice == "single_turn":
+                dataset.append(generate_single_turn())
+            elif choice == "multi_turn":
+                multi_turn_data = generate_multi_turn()
+                # Only add first turn if we're close to target
+                if len(dataset) + len(multi_turn_data) <= num_samples:
+                    dataset.extend(multi_turn_data)
+                else:
+                    dataset.append(multi_turn_data[0])
+            else:
+                dataset.append(generate_complaint())
+    
+    # Trim to exact number if we exceeded
+    dataset = dataset[:num_samples]
     
     # Shuffle the final dataset
     random.shuffle(dataset)
@@ -394,9 +365,9 @@ def validate_dataset(dataset: List[Dict]) -> Dict[str, Any]:
 # ========================
 # 4. EXPORT & ANALYSIS FUNCTIONS
 # ========================
-def save_datasets(output_dir: str = ".", train_size: int = 800, test_size: int = 200, 
-                 distribution: Dict[str, float] = None):
-    """Save datasets with comprehensive metadata and validation."""
+def save_datasets(train_size: int = 800, test_size: int = 200, 
+                 output_dir: str = ".", distribution: Dict[str, float] = None):
+    """Save datasets in simple input/output JSONL format."""
     
     os.makedirs(output_dir, exist_ok=True)
     
@@ -406,14 +377,9 @@ def save_datasets(output_dir: str = ".", train_size: int = 800, test_size: int =
     train_data = generate_dataset(train_size, distribution)
     test_data = generate_dataset(test_size, distribution)
     
-    # Validate datasets
-    train_stats = validate_dataset(train_data)
-    test_stats = validate_dataset(test_data)
-    
-    # Save datasets
+    # Save datasets in simple input/output format
     train_file = os.path.join(output_dir, 'telecom_train.jsonl')
     test_file = os.path.join(output_dir, 'telecom_test.jsonl')
-    stats_file = os.path.join(output_dir, 'dataset_stats.json')
     
     with open(train_file, 'w', encoding='utf-8') as f:
         for item in train_data:
@@ -423,33 +389,12 @@ def save_datasets(output_dir: str = ".", train_size: int = 800, test_size: int =
         for item in test_data:
             f.write(json.dumps(item, ensure_ascii=False) + '\n')
     
-    # Save comprehensive statistics
-    dataset_info = {
-        "generation_timestamp": datetime.now().isoformat(),
-        "train_stats": train_stats,
-        "test_stats": test_stats,
-        "configuration": {
-            "plans": PLANS,
-            "usage_profiles": USAGE_PROFILES,
-            "distribution": distribution or {"single_turn": 0.5, "multi_turn": 0.35, "complaint": 0.15}
-        }
-    }
-    
-    with open(stats_file, 'w', encoding='utf-8') as f:
-        json.dump(dataset_info, f, indent=2, ensure_ascii=False)
-    
     print(f"\n✅ Dataset Generation Complete!")
     print(f"📊 Training samples: {len(train_data)}")
     print(f"📊 Test samples: {len(test_data)}")
     print(f"📁 Files saved in: {output_dir}/")
     
-    # Print validation results
-    if train_stats["validation_errors"] or test_stats["validation_errors"]:
-        print(f"⚠️  Validation errors found - check {stats_file}")
-    else:
-        print("✅ All samples passed validation")
-    
-    return train_data, test_data, dataset_info
+    return train_data, test_data
 
 # ========================
 # 5. MAIN EXECUTION
@@ -482,10 +427,18 @@ if __name__ == "__main__":
     print("="*50)
     
     print("\n🗣️  Sample Single-Turn Dialogue:")
-    print(json.dumps(generate_single_turn(), indent=2))
+    single_sample = generate_single_turn()
+    print(f'Input: "{single_sample["input"]}"')
+    print(f'Output: "{single_sample["output"]}"')
     
     print(f"\n💬 Sample Multi-Turn Dialogue:")
-    print(json.dumps(generate_multi_turn(), indent=2))
+    multi_samples = generate_multi_turn()
+    for i, sample in enumerate(multi_samples, 1):
+        print(f'Turn {i}:')
+        print(f'  Input: "{sample["input"]}"')
+        print(f'  Output: "{sample["output"]}"')
     
     print(f"\n⚠️  Sample Complaint Handling:")
-    print(json.dumps(generate_complaint(), indent=2))
+    complaint_sample = generate_complaint()
+    print(f'Input: "{complaint_sample["input"]}"')
+    print(f'Output: "{complaint_sample["output"]}"')
