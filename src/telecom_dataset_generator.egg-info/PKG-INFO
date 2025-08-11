@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: telecom-dataset-generator
+Version: 1.0.0
+Summary: Generate realistic synthetic datasets for telecom customer service chatbot training
+Author-email: Nijesh <your.email@example.com>
+Project-URL: Homepage, https://github.com/knijesh/TelecomDomainFineTuning
+Project-URL: Repository, https://github.com/knijesh/TelecomDomainFineTuning
+Requires-Python: >=3.8
+License-File: LICENSE
+Requires-Dist: pandas>=1.5.0
+Requires-Dist: faker>=18.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Dynamic: license-file

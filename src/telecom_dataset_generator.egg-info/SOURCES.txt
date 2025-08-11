@@ -1,0 +1,11 @@
+LICENSE
+README.md
+pyproject.toml
+src/telecom_dataset_generator/__init__.py
+src/telecom_dataset_generator/cli.py
+src/telecom_dataset_generator/generator.py
+src/telecom_dataset_generator.egg-info/PKG-INFO
+src/telecom_dataset_generator.egg-info/SOURCES.txt
+src/telecom_dataset_generator.egg-info/dependency_links.txt
+src/telecom_dataset_generator.egg-info/requires.txt
+src/telecom_dataset_generator.egg-info/top_level.txt

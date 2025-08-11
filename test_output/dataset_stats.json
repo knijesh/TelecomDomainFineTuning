@@ -1,0 +1,155 @@
+{
+  "generation_timestamp": "2025-08-11T13:07:32.379539",
+  "train_stats": {
+    "total_samples": 10,
+    "type_distribution": {
+      "multi_turn": 3,
+      "single_turn": 5,
+      "complaint": 2
+    },
+    "avg_dialog_length": 3.2,
+    "plans_coverage": [
+      "Streamer Plus",
+      "Global Traveler",
+      "Student Saver",
+      "Basic 5G",
+      "Family Unlimited"
+    ],
+    "complaint_categories": {
+      "customer_service": 1,
+      "technical": 1
+    },
+    "validation_errors": []
+  },
+  "test_stats": {
+    "total_samples": 5,
+    "type_distribution": {
+      "multi_turn": 1,
+      "single_turn": 3,
+      "complaint": 1
+    },
+    "avg_dialog_length": 2.8,
+    "plans_coverage": [
+      "Global Traveler",
+      "Student Saver",
+      "Business Pro"
+    ],
+    "complaint_categories": {
+      "technical": 1
+    },
+    "validation_errors": []
+  },
+  "configuration": {
+    "plans": [
+      {
+        "name": "Basic 5G",
+        "price": 40,
+        "data": "5GB",
+        "roaming": "None",
+        "speed": "50Mbps",
+        "type": "individual",
+        "data_gb": 5
+      },
+      {
+        "name": "Streamer Plus",
+        "price": 60,
+        "data": "15GB",
+        "roaming": "$5/day",
+        "speed": "100Mbps",
+        "type": "individual",
+        "data_gb": 15
+      },
+      {
+        "name": "Global Traveler",
+        "price": 75,
+        "data": "Unlimited",
+        "roaming": "10GB free",
+        "speed": "200Mbps",
+        "type": "individual",
+        "data_gb": Infinity
+      },
+      {
+        "name": "Family Unlimited",
+        "price": 120,
+        "data": "Unlimited (4 lines)",
+        "roaming": "5GB shared",
+        "speed": "100Mbps",
+        "type": "family",
+        "data_gb": Infinity
+      },
+      {
+        "name": "Student Saver",
+        "price": 35,
+        "data": "8GB",
+        "roaming": "$3/day",
+        "speed": "75Mbps",
+        "type": "individual",
+        "data_gb": 8
+      },
+      {
+        "name": "Business Pro",
+        "price": 90,
+        "data": "50GB",
+        "roaming": "20GB included",
+        "speed": "300Mbps",
+        "type": "business",
+        "data_gb": 50
+      }
+    ],
+    "usage_profiles": [
+      {
+        "type": "light",
+        "data_range": [
+          1,
+          4
+        ],
+        "call_range": [
+          50,
+          150
+        ],
+        "weight": 0.25
+      },
+      {
+        "type": "medium",
+        "data_range": [
+          5,
+          12
+        ],
+        "call_range": [
+          150,
+          400
+        ],
+        "weight": 0.45
+      },
+      {
+        "type": "heavy",
+        "data_range": [
+          15,
+          35
+        ],
+        "call_range": [
+          400,
+          800
+        ],
+        "weight": 0.25
+      },
+      {
+        "type": "enterprise",
+        "data_range": [
+          30,
+          100
+        ],
+        "call_range": [
+          800,
+          1500
+        ],
+        "weight": 0.05
+      }
+    ],
+    "distribution": {
+      "single_turn": 0.5,
+      "multi_turn": 0.35,
+      "complaint": 0.15
+    }
+  }
+}
